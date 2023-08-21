@@ -17,6 +17,12 @@ export const proxyCompletions = async (
   targetPath: string
 ): Promise<Response> => {
   const req = ctx.req
+  if (req.method === "OPTIONS") {
+    return new Response("", {
+      status: 200,
+    });
+  }
+
   const upstreamUrl = getUpstreamURL(provider, targetPath)
   const headers = prepareHeaders(provider)
   const response = await fetch(upstreamUrl, {
@@ -26,6 +32,8 @@ export const proxyCompletions = async (
   })
 
   const originalHeaders = response.headers
+
+
   const newHeaders = new Headers(originalHeaders)
   for (const key of originalHeaders.keys()) {
     if (!passThroughHeaders.includes(key)) {
