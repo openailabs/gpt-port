@@ -2,10 +2,11 @@ import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 import { createHandler } from './helper/createHandler'
 import { routes } from './routes'
+import { cors } from "hono/cors";
 
 export const initApp = (basePath = '/') => {
   const app = createHandler().basePath(basePath)
-
+  app.use("*", cors());
   app.use('*', logger())
 
   app.get('/ready', c => {
