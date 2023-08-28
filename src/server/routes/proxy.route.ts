@@ -25,5 +25,22 @@ handler.post(
     return proxyCompletions(c, result, provider, '/v1/chat/completions')
   }
 )
+handler.post(
+  "/v1/embeddings",
+  zValidator("json", z.object({ model: z.string().min(1) }).passthrough()),
+  validateAPIToken,
+  async (c) => {
+    const result = await c.req.valid("json");
+    const { model } = result;
+    const modelsController = new ModelController(c.env.redis);
+    const provider = await modelsController.findProviderByModel(model);
+    if (!provider) {
+      throw new HTTPException(401, {
+        message: "Model unsupported",
+      });
+    }
+    return proxyCompletions(c, result, provider, "/v1/embeddings");
+  }
+);
 
 export default handler
